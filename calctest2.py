@@ -7,7 +7,7 @@
 from sly import Lexer, Parser
 
 class CalcLexer(Lexer):
-    tokens = { NAME, NUMBER, PLUS, TIMES, MINUS, DIVIDE, ASSIGN, LPAREN, RPAREN }
+    tokens = { NAME, NUMBER, PLUS, TIMES, MINUS, DIVIDE, EQUALS, LPAREN, RPAREN, SEMICOLON, COMMA }
     ignore = ' \t'
 
     # Tokens
@@ -19,9 +19,11 @@ class CalcLexer(Lexer):
     MINUS = r'-'
     TIMES = r'\*'
     DIVIDE = r'/'
-    ASSIGN = r'='
+    EQUALS = r'='
     LPAREN = r'\('
     RPAREN = r'\)'
+    SEMICOLON = r';'
+    COMMA = r','
 
     # Ignored pattern
     ignore_newline = r'\n+'
@@ -34,8 +36,6 @@ class CalcLexer(Lexer):
         print("Illegal character '%s'" % t.value[0])
         self.index += 1
 
-from pprint import pprint
-
 class CalcParser(Parser):
     tokens = CalcLexer.tokens
 
@@ -46,9 +46,43 @@ class CalcParser(Parser):
     # def statement(self, p):
     #     self.names[p.NAME] = p.expr
 
-    @_('expr')
+    @_('block')
+    def script(self, p):
+        return p.block
+    
+    @_('{ statement SEMICOLON }')
+    def block(self, p):
+        stats = [stat for stat, _ in p[0]]
+        return ('block', stats)
+    
+    @_('assignment')
     def statement(self, p):
-        pprint(p.expr)
+        return p[0]
+    
+    @_('function_call')
+    def statement(self, p):
+        return p[0]
+
+    @_('NAME EQUALS expr')
+    def assignment(self, p):
+        return ('assignment', p.NAME, p.expr)
+    
+    @_('expr { COMMA expr }')
+    def varargs(self, p):
+        args = [p.expr0] + [expr for _, expr in p[1]]
+        return args
+
+    @_('LPAREN varargs RPAREN')
+    def funcargs(self, p):
+        return p.varargs
+
+    @_('NAME funcargs')
+    def function_call(self, p):
+        return ('functioncall', p.NAME, p.funcargs)
+
+    @_('function_call')
+    def expr(self, p):
+        return p.function_call
 
     @_('term { PLUS|MINUS term }')
     def expr(self, p):
@@ -80,13 +114,25 @@ class CalcParser(Parser):
     def factor(self, p):
         return ('name', p.NAME)
 
+# script = \
+# """
+# y = 1 + 2 * 3 + 4;
+# x = y + y * y;
+# print(x - y);
+# print(sqrt(64));
+# """
+
+script = \
+"""
+print(sqrt(64));
+"""
+
+import calc_interp
+
 if __name__ == '__main__':
     lexer = CalcLexer()
     parser = CalcParser()
-    while True:
-        try:
-            text = input('calc > ')
-        except EOFError:
-            break
-        if text:
-            parser.parse(lexer.tokenize(text))
+
+    ast = parser.parse(lexer.tokenize(script))
+    print(ast)
+    calc_interp.interpret(ast)
