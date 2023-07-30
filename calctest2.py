@@ -4,15 +4,25 @@
 # calc.py
 # -----------------------------------------------------------------------------
 
+import re
 from sly import Lexer, Parser
 
 class CalcLexer(Lexer):
-    tokens = { NAME, NUMBER, PLUS, TIMES, MINUS, DIVIDE, EQUALS, LPAREN, RPAREN, SEMICOLON, COMMA }
+    tokens = { NAME, NUMBER, STRING, PLUS, TIMES, MINUS, DIVIDE, EQUALS, LPAREN, RPAREN, SEMICOLON, COMMA }
     ignore = ' \t'
 
     # Tokens
     NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
     NUMBER = r'\d+'
+    @_(r'"(\\.|[^\"])*"')
+    def STRING(self, t):
+        ESCAPE_MAP = {'n':'\n', 't':'\t'}
+
+        t.value = t.value[1:-1]
+        t.value = re.sub(r'\\x(\w{2})', lambda x: chr(int(x.groups()[0],16)), t.value)
+        t.value = re.sub(r'\\u(\w{4})', lambda x: chr(int(x.groups()[0],16)), t.value)
+        t.value = re.sub(r'\\(.)', lambda x: ESCAPE_MAP.get(x.groups()[0]) or x.groups()[0], t.value)
+        return t
 
     # Special symbols
     PLUS = r'\+'
@@ -113,6 +123,10 @@ class CalcParser(Parser):
     @_('NAME')
     def factor(self, p):
         return ('name', p.NAME)
+    
+    @_('STRING')
+    def factor(self, p):
+        return ('string', p.STRING)
 
 # script = \
 # """
@@ -124,7 +138,10 @@ class CalcParser(Parser):
 
 script = \
 """
-print(sqrt(64));
+print("I'm a little string, short and stout!");
+print("I have characters\\" that are \\\\ naughty \\m");
+print("LINE 1\\n\\tLINE 2\\n\\t\\tLINE 3");
+print("\\ufe92");
 """
 
 import calc_interp

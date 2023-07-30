@@ -16,6 +16,10 @@ class Interpreter:
         match expr[0]:
             case 'number':
                 return expr[1]
+            case 'string':
+                return expr[1]
+            case 'name':
+                return self.vars.get(expr[1])
             case 'binop':
                 binops = {
                     '+': lambda x, y: x + y,
@@ -25,8 +29,6 @@ class Interpreter:
                 }
 
                 return binops[expr[1]](self.i_expr(expr[2]), self.i_expr(expr[3]))
-            case 'name':
-                return self.vars.get(expr[1])
             case 'unary':
                 if expr[1] == '+':
                     return self.i_expr(expr[2])
