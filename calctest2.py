@@ -34,61 +34,51 @@ class CalcLexer(Lexer):
         print("Illegal character '%s'" % t.value[0])
         self.index += 1
 
+from pprint import pprint
+
 class CalcParser(Parser):
     tokens = CalcLexer.tokens
-
-    precedence = (
-        ('left', PLUS, MINUS),
-        ('left', TIMES, DIVIDE),
-        ('right', UMINUS),
-        )
 
     def __init__(self):
         self.names = { }
 
-    @_('NAME ASSIGN expr')
-    def statement(self, p):
-        self.names[p.NAME] = p.expr
+    # @_('NAME ASSIGN expr')
+    # def statement(self, p):
+    #     self.names[p.NAME] = p.expr
 
     @_('expr')
     def statement(self, p):
-        print(p.expr)
+        pprint(p.expr)
 
-    @_('expr PLUS expr')
+    @_('term { PLUS|MINUS term }')
     def expr(self, p):
-        return p.expr0 + p.expr1
+        lval = p.term0
+        for op, rval in p[1]:
+            lval = ('binop', op, lval, rval)
+        return lval
 
-    @_('expr MINUS expr')
-    def expr(self, p):
-        return p.expr0 - p.expr1
+    @_('factor { TIMES|DIVIDE factor }')
+    def term(self, p):
+        lval = p.factor0
+        for op, rval in p[1]:
+            lval = ('binop', op, lval, rval)
+        return lval
 
-    @_('expr TIMES expr')
-    def expr(self, p):
-        return p.expr0 * p.expr1
-
-    @_('expr DIVIDE expr')
-    def expr(self, p):
-        return p.expr0 / p.expr1
-
-    @_('MINUS expr %prec UMINUS')
-    def expr(self, p):
-        return -p.expr
+    @_('MINUS factor')
+    def factor(self, p):
+        return ('uminus', p.factor)
 
     @_('LPAREN expr RPAREN')
-    def expr(self, p):
+    def factor(self, p):
         return p.expr
 
     @_('NUMBER')
-    def expr(self, p):
-        return int(p.NUMBER)
+    def factor(self, p):
+        return ('number', int(p.NUMBER))
 
     @_('NAME')
-    def expr(self, p):
-        try:
-            return self.names[p.NAME]
-        except LookupError:
-            print(f'Undefined name {p.NAME!r}')
-            return 0
+    def factor(self, p):
+        return ('name', p.NAME)
 
 if __name__ == '__main__':
     lexer = CalcLexer()
