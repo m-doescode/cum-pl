@@ -138,10 +138,7 @@ class CalcParser(Parser):
 
 script = \
 """
-print("I'm a little string, short and stout!");
-print("I have characters\\" that are \\\\ naughty \\m");
-print("LINE 1\\n\\tLINE 2\\n\\t\\tLINE 3");
-print("\\ufe92");
+
 """
 
 import calc_interp
