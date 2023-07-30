@@ -29,11 +29,8 @@ class Interpreter:
                 }
 
                 return binops[expr[1]](self.i_expr(expr[2]), self.i_expr(expr[3]))
-            case 'unary':
-                if expr[1] == '+':
-                    return self.i_expr(expr[2])
-                elif expr[1] == '-':
-                    return -self.i_expr(expr[2])
+            case 'uminus':
+                return -self.i_expr(expr[2])
             case 'grouped':
                 return self.i_expr(expr[1])
             case 'functioncall':
