@@ -179,7 +179,7 @@ parser = yacc()
 # y = 12 + (-56) * 234 + (6 * 7);
 ast = parser.parse(
 """
-y = 12 + (56) * 234 + 5;
+y = 1 + 2 * 3 + 4;
 x = y + y * y;
 print(x - y);
 """)

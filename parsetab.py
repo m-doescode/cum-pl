@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'COMMA DIVIDE EQUALS LPAREN MINUS NAME NUMBER PLUS RPAREN SEMICOLON TIMES\n    block : block statement SEMICOLON\n          | statement SEMICOLON\n    \n    varargs : varargs COMMA expression\n            | expression\n    \n    functionargs : LPAREN varargs RPAREN\n    \n    functioncall : NAME functionargs\n    \n    statement : assignment\n              | functioncall\n    \n    assignment : NAME EQUALS expression\n    \n    expression : term PLUS term\n               | term MINUS term\n    \n    expression : term\n    \n    term : factor TIMES factor\n         | factor DIVIDE factor\n    \n    term : factor\n    \n    factor : NUMBER\n    \n    factor : NAME\n    \n    factor : PLUS factor\n           | MINUS factor\n    \n    factor : LPAREN expression RPAREN\n    '
+_lr_signature = 'left+-left*/rightUMINUSNAME NUMBERstatement : NAME "=" expressionstatement : expressionexpression : expression \'+\' expression\n                  | expression \'-\' expression\n                  | expression \'*\' expression\n                  | expression \'/\' expressionexpression : \'-\' expression %prec UMINUSexpression : \'(\' expression \')\'expression : NUMBERexpression : NAME'
     
-_lr_action_items = {'NAME':([0,1,7,8,10,11,15,16,19,22,23,26,27,30,],[5,5,-2,12,12,-1,12,12,12,12,12,12,12,12,]),'$end':([1,7,11,],[0,-2,-1,]),'SEMICOLON':([2,3,4,6,9,12,13,14,17,18,24,25,29,31,32,33,34,35,],[7,-7,-8,11,-6,-17,-9,-12,-15,-16,-18,-19,-5,-10,-11,-13,-14,-20,]),'EQUALS':([5,],[8,]),'LPAREN':([5,8,10,15,16,19,22,23,26,27,30,],[10,19,19,19,19,19,19,19,19,19,19,]),'NUMBER':([8,10,15,16,19,22,23,26,27,30,],[18,18,18,18,18,18,18,18,18,18,]),'PLUS':([8,10,12,14,15,16,17,18,19,22,23,24,25,26,27,30,33,34,35,],[15,15,-17,22,15,15,-15,-16,15,15,15,-18,-19,15,15,15,-13,-14,-20,]),'MINUS':([8,10,12,14,15,16,17,18,19,22,23,24,25,26,27,30,33,34,35,],[16,16,-17,23,16,16,-15,-16,16,16,16,-18,-19,16,16,16,-13,-14,-20,]),'TIMES':([12,17,18,24,25,35,],[-17,26,-16,-18,-19,-20,]),'DIVIDE':([12,17,18,24,25,35,],[-17,27,-16,-18,-19,-20,]),'RPAREN':([12,14,17,18,20,21,24,25,28,31,32,33,34,35,36,],[-17,-12,-15,-16,29,-4,-18,-19,35,-10,-11,-13,-14,-20,-3,]),'COMMA':([12,14,17,18,20,21,24,25,31,32,33,34,35,36,],[-17,-12,-15,-16,30,-4,-18,-19,-10,-11,-13,-14,-20,-3,]),}
+_lr_action_items = {'NAME':([0,4,5,7,8,9,10,11,],[2,13,13,13,13,13,13,13,]),'-':([0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,],[4,-10,9,4,4,-9,4,4,4,4,4,-7,-10,9,9,-3,-4,-5,-6,-8,]),'(':([0,4,5,7,8,9,10,11,],[5,5,5,5,5,5,5,5,]),'NUMBER':([0,4,5,7,8,9,10,11,],[6,6,6,6,6,6,6,6,]),'$end':([1,2,3,6,12,13,15,16,17,18,19,20,],[0,-10,-2,-9,-7,-10,-1,-3,-4,-5,-6,-8,]),'=':([2,],[7,]),'+':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,8,-9,-7,-10,8,8,-3,-4,-5,-6,-8,]),'*':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,10,-9,-7,-10,10,10,10,10,-5,-6,-8,]),'/':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,11,-9,-7,-10,11,11,11,11,-5,-6,-8,]),')':([6,12,13,14,16,17,18,19,20,],[-9,-7,-10,20,-3,-4,-5,-6,-8,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'block':([0,],[1,]),'statement':([0,1,],[2,6,]),'assignment':([0,1,],[3,3,]),'functioncall':([0,1,],[4,4,]),'functionargs':([5,],[9,]),'expression':([8,10,19,30,],[13,21,28,36,]),'term':([8,10,19,22,23,30,],[14,14,14,31,32,14,]),'factor':([8,10,15,16,19,22,23,26,27,30,],[17,17,24,25,17,17,17,33,34,17,]),'varargs':([10,],[20,]),}
+_lr_goto_items = {'statement':([0,],[1,]),'expression':([0,4,5,7,8,9,10,11,],[3,12,14,15,16,17,18,19,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,25 +26,15 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> block","S'",1,None,None,None),
-  ('block -> block statement SEMICOLON','block',3,'p_block','onlineexample.py',70),
-  ('block -> statement SEMICOLON','block',2,'p_block','onlineexample.py',71),
-  ('varargs -> varargs COMMA expression','varargs',3,'p_varargs','onlineexample.py',80),
-  ('varargs -> expression','varargs',1,'p_varargs','onlineexample.py',81),
-  ('functionargs -> LPAREN varargs RPAREN','functionargs',3,'p_functionargs','onlineexample.py',90),
-  ('functioncall -> NAME functionargs','functioncall',2,'p_functioncall','onlineexample.py',96),
-  ('statement -> assignment','statement',1,'p_statement','onlineexample.py',102),
-  ('statement -> functioncall','statement',1,'p_statement','onlineexample.py',103),
-  ('assignment -> NAME EQUALS expression','assignment',3,'p_assignment','onlineexample.py',109),
-  ('expression -> term PLUS term','expression',3,'p_expression','onlineexample.py',117),
-  ('expression -> term MINUS term','expression',3,'p_expression','onlineexample.py',118),
-  ('expression -> term','expression',1,'p_expression_term','onlineexample.py',129),
-  ('term -> factor TIMES factor','term',3,'p_term','onlineexample.py',135),
-  ('term -> factor DIVIDE factor','term',3,'p_term','onlineexample.py',136),
-  ('term -> factor','term',1,'p_term_factor','onlineexample.py',142),
-  ('factor -> NUMBER','factor',1,'p_factor_number','onlineexample.py',148),
-  ('factor -> NAME','factor',1,'p_factor_name','onlineexample.py',154),
-  ('factor -> PLUS factor','factor',2,'p_factor_unary','onlineexample.py',160),
-  ('factor -> MINUS factor','factor',2,'p_factor_unary','onlineexample.py',161),
-  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_grouped','onlineexample.py',167),
+  ("S' -> statement","S'",1,None,None,None),
+  ('statement -> NAME = expression','statement',3,'p_statement_assign','calc.py',50),
+  ('statement -> expression','statement',1,'p_statement_expr','calc.py',55),
+  ('expression -> expression + expression','expression',3,'p_expression_binop','calc.py',60),
+  ('expression -> expression - expression','expression',3,'p_expression_binop','calc.py',61),
+  ('expression -> expression * expression','expression',3,'p_expression_binop','calc.py',62),
+  ('expression -> expression / expression','expression',3,'p_expression_binop','calc.py',63),
+  ('expression -> - expression','expression',2,'p_expression_uminus','calc.py',75),
+  ('expression -> ( expression )','expression',3,'p_expression_group','calc.py',80),
+  ('expression -> NUMBER','expression',1,'p_expression_number','calc.py',85),
+  ('expression -> NAME','expression',1,'p_expression_name','calc.py',90),
 ]
