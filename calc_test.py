@@ -5,10 +5,15 @@ import calc_vm
 
 script = \
 """
-y = 1 + 2 * 3 + 4;
-x = y + y * y;
-print(x - y);
-print(sqrt(64));
+
+x1 = 2;
+y1 = 5;
+x2 = 10;
+y2 = 12;
+
+dist = sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
+print(dist);
+
 """
 
 if __name__ == '__main__':
