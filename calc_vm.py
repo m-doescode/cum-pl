@@ -22,9 +22,12 @@ def to_list(map):
         list[i] = v
     return list
 
-def run(constants, instructions):
+def run(constants, instructions, custom_print):
     print("Running VM...")
     registers = {}
+
+    if custom_print:
+        stdlib['print'] = custom_print
 
     for inst in instructions:
         match inst[0]:

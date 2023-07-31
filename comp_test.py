@@ -29,7 +29,8 @@ if __name__ == '__main__':
     compiler = calc_comp.Compiler()
     compiler.c_block(ast)
     print(compiler.constants, compiler.instructions)
-    calc_comp.write_bytecode(compiler, 'compbc')
+    with open('compbc', 'w') as f:
+        calc_comp.write_bytecode(compiler, f)
 
     print("\n:: Reading...")
 

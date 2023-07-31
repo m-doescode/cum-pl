@@ -164,28 +164,27 @@ def write_constant(const, f):
 
 OPCODES = ["end","loadk","mov","sum","sub","mult","div","call"]
 
-def write_bytecode(compiler: Compiler, output):
-    with open(output, 'wb') as f:
-        f.write(b'\x1bCUM\x01') # \ESC CUM version 0.1
+def write_bytecode(compiler: Compiler, f):
+    f.write(b'\x1bCUM\x01') # \ESC CUM version 0.1
 
-        for const in compiler.constants:
-            write_constant(const, f)
+    for const in compiler.constants:
+        write_constant(const, f)
 
-        f.write(b'\00') # End constants
+    f.write(b'\00') # End constants
 
-        for inst in compiler.instructions:
-            f.write(OPCODES.index(inst[0]).to_bytes(1))
-            remaining = 4
-            try:
-                f.write(inst[1].to_bytes(1)); remaining -= 1
-                f.write(inst[2].to_bytes(1)); remaining -= 1
-                f.write(inst[3].to_bytes(1)); remaining -= 1
-                f.write(inst[4].to_bytes(1)); remaining -= 1
-            except IndexError:
-                pass # LMAO lazy solution. (It works!)
-            
-            for _ in range(0, remaining):
-                f.write(b'\00')
+    for inst in compiler.instructions:
+        f.write(OPCODES.index(inst[0]).to_bytes(1))
+        remaining = 4
+        try:
+            f.write(inst[1].to_bytes(1)); remaining -= 1
+            f.write(inst[2].to_bytes(1)); remaining -= 1
+            f.write(inst[3].to_bytes(1)); remaining -= 1
+            f.write(inst[4].to_bytes(1)); remaining -= 1
+        except IndexError:
+            pass # LMAO lazy solution. (It works!)
+        
+        for _ in range(0, remaining):
+            f.write(b'\00')
 
 def read_constants(f):
     constants = []

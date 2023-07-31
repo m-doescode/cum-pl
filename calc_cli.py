@@ -1,5 +1,5 @@
 from calc_parser import CalcLexer, CalcParser
-import calc_interp
+from calc_interp import Interpreter
 import calc_comp
 import calc_vm
 
@@ -33,8 +33,18 @@ if __name__ == '__main__':
         print(f":: Reading bytecode from file '{args.input}'")
         k, i = calc_comp.read_bytecode(args.input)
 
+        # Redirect output to file
+        output = None
+        f = None
+        if args.output:
+            f = open(args.output, 'w')
+            output = lambda x: f.write(str(x))
+
         print(f":: Running")
-        calc_vm.run(k, i)
+        calc_vm.run(k, i, output)
+
+        if f:
+            f.close()
     else:
         print(f":: Parsing file '{args.input}'")
         lexer = CalcLexer()
@@ -44,17 +54,15 @@ if __name__ == '__main__':
             ast = parser.parse(lexer.tokenize(f.read()))
 
         if args.compile:
-            if args.output is None:
-                raise ValueError(f"Please specify an output file.")
-            
             compiler = calc_comp.Compiler()
             compiler.c_block(ast)
 
-            calc_comp.write_bytecode(compiler, args.output)
+            if args.output is None:
+                    calc_comp.write_bytecode(compiler, Console())
+            else:
+                with open(args.output, 'wb') as f:
+                    calc_comp.write_bytecode(compiler, f)
         elif args.compile_asm:
-            # if args.output is None:
-            #     raise ValueError(f"Please specify an output file.")
-            
             compiler = calc_comp.Compiler()
             compiler.c_block(ast)
 
@@ -66,4 +74,17 @@ if __name__ == '__main__':
         else:
             print(f":: Interpreting")
 
-            calc_interp.interpret(ast)
+            interpreter = Interpreter()
+
+            # Redirect output to file
+            output = None
+            f = None
+            if args.output:
+                f = open(args.output, 'w')
+                interpreter.stdlib['print'] = lambda x: f.write(str(x))
+
+            interpreter.i_block(ast)
+
+            if f:
+                f.close()
+            
