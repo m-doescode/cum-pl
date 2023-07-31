@@ -136,17 +136,26 @@ class CalcParser(Parser):
 # print(sqrt(64));
 # """
 
-script = \
-"""
+# script = \
+# """
+# y = 1 + 2 * 3 + 4;
+# x = y + y * y;
+# print(x - y);
+# print(sqrt(64));
+# """
 
-"""
+# import calc_interp
+# import calc_comp
+# import calc_vm
 
-import calc_interp
+# if __name__ == '__main__':
+#     lexer = CalcLexer()
+#     parser = CalcParser()
 
-if __name__ == '__main__':
-    lexer = CalcLexer()
-    parser = CalcParser()
-
-    ast = parser.parse(lexer.tokenize(script))
-    print(ast)
-    calc_interp.interpret(ast)
+#     ast = parser.parse(lexer.tokenize(script))
+#     print(ast)
+#     calc_interp.interpret(ast)
+#     # calc_comp.compile(ast)
+#     compiler = calc_comp.Compiler()
+#     compiler.c_block(ast)
+#     calc_vm.run(compiler.constants, compiler.instructions)

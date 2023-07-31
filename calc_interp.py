@@ -47,7 +47,7 @@ class Interpreter:
     def i_funcc(self, funcc):
         func = self.stdlib.get(funcc[1])
         if func is None:
-            raise LookupError(f"Unknown function '{funcc[1]}'")
+            raise NameError(f"Unknown function '{funcc[1]}'")
         return func(*self.i_varargs(funcc[2]))
 
     def i_stat(self, stat):
