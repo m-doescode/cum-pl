@@ -129,3 +129,97 @@ def compile(ast):
 
         with open('compout.txt','w') as f:
             compiler.write_instructions(f)
+
+### Bytecode Reference
+
+# {ESC} CUM XX
+#           ^^ Hex code major and minor for version. E.G. 0x01 for version 0.1
+# Constants:
+# byte (type: 1: integer, 2: float, 3: string)
+#      int: 4 bytes - integer
+#      float: 8 byte - double
+#      string: 4 bytes - length ... - utf-8
+# NULL
+# Instructions:
+# 1 byte - OPCODE, 1 byte - A, 1 byte - B, 1 byte - C, 1 byte - D
+
+import builtins
+import struct
+
+def write_constant(const, f):
+    match type(const):
+        case builtins.int:
+            f.write(b'\01')
+            f.write(int(const).to_bytes(4))
+        case builtins.float:
+            f.write(b'\02')
+            f.write(struct.pack('d', float(const)))
+        case builtins.str:
+            const = str(const)
+            f.write(b'\03')
+            f.write(len(const).to_bytes(4))
+            f.write(const.encode('utf-8'))
+        case _:
+            raise ValueError(f"Invalid constant type {str(type(const))}")
+
+OPCODES = ["end","loadk","mov","sum","sub","mult","div","call"]
+
+def write_bytecode(compiler: Compiler, output):
+    with open(output, 'wb') as f:
+        f.write(b'\x1bCUM\x01') # \ESC CUM version 0.1
+
+        for const in compiler.constants:
+            write_constant(const, f)
+
+        f.write(b'\00') # End constants
+
+        for inst in compiler.instructions:
+            f.write(OPCODES.index(inst[0]).to_bytes(1))
+            remaining = 4
+            try:
+                f.write(inst[1].to_bytes(1)); remaining -= 1
+                f.write(inst[2].to_bytes(1)); remaining -= 1
+                f.write(inst[3].to_bytes(1)); remaining -= 1
+                f.write(inst[4].to_bytes(1)); remaining -= 1
+            except IndexError:
+                pass # LMAO lazy solution. (It works!)
+            
+            for _ in range(0, remaining):
+                f.write(b'\00')
+
+def read_constants(f):
+    constants = []
+    while True:
+        typeid = int.from_bytes(f.read(1))
+        match typeid:
+            case 0:
+                break
+            case 1:
+                constants.append(int.from_bytes(f.read(4)))
+            case 2:
+                constants.append(float(struct.unpack('d', f.read(8))[0]))
+            case 3:
+                length = int.from_bytes(f.read(4))
+                constants.append(f.read(length).decode('utf-8'))
+    return constants
+
+def read_bytecode(source):
+    constants = []
+    instructions = []
+    with open(source, 'rb') as f:
+        if f.read(4) != b'\x1bCUM':
+            raise ValueError(f"File '{source}' is not a valid CUM bytecode file.")
+        version = f.read(1)
+        if version != b'\x01':
+            raise ValueError(f"File version is too old or too new. ({ord(version) // 16}.{ord(version) % 16})")
+
+        constants = read_constants(f)
+
+        while True:
+            opcode = OPCODES[int.from_bytes(f.read(1))]
+            if opcode == "end":
+                break
+
+            instructions.append((opcode, int.from_bytes(f.read(1)), int.from_bytes(f.read(1)), int.from_bytes(f.read(1)), int.from_bytes(f.read(1))))
+
+        return constants, instructions
