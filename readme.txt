@@ -8,7 +8,23 @@ pip3 install sly
 
 Das it. Then, ur dun.
 
+To run a file, do 'py -3 calc_cli.py your_script.cum'
+
 ===
+
+CLI USAGE:
+
+# Interpret a file
+py -3 calc_cli.py your_script.cum
+
+# Compile a file
+py -3 calc_cli.py your_script.cum --compile --output output_cum
+
+# Compile a file to readable assembly (you can also add --output to redirect)
+py -3 calc_cli.py your_script.cum --compile-asm
+
+# Interpret a bytecode file
+py -3 calc_cli.py bytecode_cum --bytecode
 
 ===
 
@@ -29,13 +45,13 @@ For example, finding length of a 2d line (Pythagoreas' theorum):
 
 ```cum
 
-x1 = 2
-y1 = 5
-x2 = 10
-y2 = 12
+x1 = 2;
+y1 = 5;
+x2 = 10;
+y2 = 12;
 
-dist = sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1))
-print(dist)
+dist = sqrt((y2-y1)*(y2-y1)+(x2-x1)*(x2-x1));
+print(dist);
 
 ```
 
