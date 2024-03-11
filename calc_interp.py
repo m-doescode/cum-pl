@@ -1,13 +1,27 @@
 
+import math
+
 def func_print(str):
     print(str)
 
 def func_sqrt(sq):
     return sq**0.5
 
+def func_sin(deg):
+    return math.sin(math.radians(deg))
+
+def func_cos(deg):
+    return math.cos(math.radians(deg))
+
+def func_tan(deg):
+    return math.tan(math.radians(deg))
+
+def func_pow(op, pow):
+    return op ** pow
+
 class Interpreter:
     # Standard library
-    stdlib = { 'print': func_print, 'sqrt': func_sqrt }
+    stdlib = { 'print': func_print, 'sqrt': func_sqrt, 'sin': func_sin, 'cos': func_cos, 'tan': func_tan, 'pow': func_pow }
     
     # Variables
     vars = {}

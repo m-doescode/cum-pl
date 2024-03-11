@@ -38,7 +38,7 @@ print("Hello " + "world!")
 
 Functions; heeel yeah.
 
-Cumulative Upgrading Multiplexer (CUM) lang has a very extensive and thorough standard library feature over (at least) 2 functions.
+Cumulative Upgrading Multiplexer (CUM) lang has a very extensive and thorough standard library featuring over (at least) 2 functions.
 These functions are the language's main feature and can be strung together to make anything.
 
 For example, finding length of a 2d line (Pythagoreas' theorum):
